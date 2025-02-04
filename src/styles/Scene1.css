@@ -1,0 +1,6 @@
+#wordCountLabel {
+  /* for adjusting label width according to the text inside it */
+  /* -fx-pref-width:  -fx-computed-size; */
+  -fx-background-color: black;
+  -fx-text-fill: white;
+}
