@@ -11,20 +11,19 @@ public class NoteApplication extends Application {
   @Override
   public void start(Stage primaryStage) {
     try {
+      // Load FXML file for the main scene
       Parent root = FXMLLoader.load(getClass().getResource("scene1.fxml"));
       Scene scene = new Scene(root);
 
+      // Set application icon
       Image appIcon = new Image("images/icon.png");
       primaryStage.getIcons().add(appIcon);
 
-      /*
-      String css = this.getClass().getResource("Scene1.css").toExternalForm();
+      // Load the CSS file
+      String css = this.getClass().getResource("/styles/lightmode.css").toExternalForm();
       scene.getStylesheets().add(css);
 
-      String css_theme = this.getClass().getResource("../styles/lightmode.css").toExternalForm();
-      scene.getStylesheets().add(css_theme);
-      */
-      
+      // Title of the primary stage
       primaryStage.setTitle("Skrib");
       primaryStage.setScene(scene);
       primaryStage.show();

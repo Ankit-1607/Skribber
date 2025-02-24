@@ -28,23 +28,30 @@
                   <MenuItem mnemonicParsing="false" text="Close current Skrib" />
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="Vault">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#handleSelectDirectory" text="New Vault" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" text="Open Vault" />
+              </items>
+            </Menu>
         </menus>
       </MenuBar>
    </top>
    <left>
       <ScrollPane fx:id="treeScrollPane" prefHeight="344.0" prefWidth="181.0" BorderPane.alignment="CENTER">
          <content>
-            <TreeView fx:id="treeView" prefHeight="342.0" prefWidth="179.0" />
+            <TreeView fx:id="treeView" prefHeight="442.0" prefWidth="179.0" />
          </content>
       </ScrollPane>
    </left>
    <center>
-      <HTMLEditor fx:id="htmlEditor" htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" onInputMethodTextChanged="#initialize" prefHeight="200.0" prefWidth="506.0" styleClass="HTMLEditor" stylesheets="@../styles/lightmode.css" BorderPane.alignment="CENTER" />
+      <HTMLEditor fx:id="htmlEditor" htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" onKeyReleased="#handleClickEventInWebView" onMouseClicked="#handleClickEventInWebView" styleClass="HTMLEditor" stylesheets="@../styles/lightmode.css" BorderPane.alignment="CENTER" />
    </center>
    <bottom>
       <HBox alignment="CENTER_LEFT" prefHeight="22.0" prefWidth="236.0" spacing="50.0" styleClass="bottom-bar" stylesheets="@../styles/lightmode.css" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="toggleTreeViewButton" mnemonicParsing="false" onMouseClicked="#initialize" prefWidth="140.0" styleClass="toggle-button" stylesheets="@../styles/lightmode.css" text="Hide Notes List" />
+            <Button fx:id="toggleTreeViewButton" mnemonicParsing="false" onMouseClicked="#handleToggleButtonClick" prefWidth="140.0" styleClass="toggle-button" stylesheets="@../styles/lightmode.css" text="Hide Notes List" />
             <Label fx:id="wordCountLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="19.0" prefWidth="234.0" styleClass="word-count" stylesheets="@../styles/lightmode.css" HBox.hgrow="ALWAYS" />
          </children>
       </HBox>
