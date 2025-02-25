@@ -21,18 +21,18 @@
             <items>
               <MenuItem mnemonicParsing="false" text="Blank Skribpad" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="Save your Skrib" />
+                  <MenuItem mnemonicParsing="false" onAction="#saveFileContent" text="Save your Skrib" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <CheckMenuItem mnemonicParsing="false" text="Autosave Skrib" />
+                  <CheckMenuItem fx:id="autosaveMenuItem" mnemonicParsing="false" text="Autosave Skrib" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" text="Close current Skrib" />
             </items>
           </Menu>
             <Menu mnemonicParsing="false" text="Vault">
               <items>
-                <MenuItem mnemonicParsing="false" onAction="#handleSelectDirectory" text="New Vault" />
+                <MenuItem mnemonicParsing="false" text="New Vault" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="Open Vault" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleSelectDirectory" text="Open Vault" />
               </items>
             </Menu>
         </menus>
