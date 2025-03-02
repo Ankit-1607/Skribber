@@ -19,27 +19,31 @@
         <menus>
           <Menu mnemonicParsing="false" styleClass="menu" text="File">
             <items>
-              <MenuItem mnemonicParsing="false" text="Blank Skribpad" />
+              <MenuItem mnemonicParsing="false" onAction="#createNewFile" text="Blank Skribpad" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#saveFileContent" text="Save your Skrib" />
+                  <MenuItem mnemonicParsing="false" onAction="#saveFileContent" text="Save Skrib" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <CheckMenuItem fx:id="autosaveMenuItem" mnemonicParsing="false" text="Autosave Skrib" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="Close current Skrib" />
+                  <MenuItem mnemonicParsing="false" onAction="#closeCurrentFile" text="Close current Skrib" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" onAction="#deleteSelectedFile" text="Delete Skrib" />
             </items>
           </Menu>
             <Menu mnemonicParsing="false" text="Vault">
               <items>
-                <MenuItem mnemonicParsing="false" text="New Vault" />
+                <MenuItem mnemonicParsing="false" onAction="#createNewDirectory" text="New Vault" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" onAction="#handleSelectDirectory" text="Open Vault" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" onAction="#deleteSelectedDirectory" text="Delete Vault" />
               </items>
             </Menu>
         </menus>
       </MenuBar>
    </top>
    <left>
-      <ScrollPane fx:id="treeScrollPane" prefHeight="344.0" prefWidth="181.0" BorderPane.alignment="CENTER">
+      <ScrollPane fx:id="treeScrollPane" fitToHeight="true" fitToWidth="true" BorderPane.alignment="CENTER">
          <content>
             <TreeView fx:id="treeView" prefHeight="442.0" prefWidth="179.0" />
          </content>
