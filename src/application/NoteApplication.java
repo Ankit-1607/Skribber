@@ -12,7 +12,8 @@ public class NoteApplication extends Application {
   public void start(Stage primaryStage) {
     try {
       // Load FXML file for the main scene
-      Parent root = FXMLLoader.load(getClass().getResource("scene1.fxml"));
+      FXMLLoader loader = new FXMLLoader(getClass().getResource("scene1.fxml"));
+      Parent root = loader.load();
       Scene scene = new Scene(root);
 
       // Set application icon
@@ -22,6 +23,9 @@ public class NoteApplication extends Application {
       // Load the CSS file
       String css = this.getClass().getResource("/styles/lightmode.css").toExternalForm();
       scene.getStylesheets().add(css);
+
+      Scene1Controller controller = loader.getController();
+      controller.initializeZoomHandlers((scene));
 
       // Title of the primary stage
       primaryStage.setTitle("Skrib");

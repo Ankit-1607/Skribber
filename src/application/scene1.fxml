@@ -8,6 +8,7 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -42,15 +43,17 @@
         </menus>
       </MenuBar>
    </top>
-   <left>
-      <ScrollPane fx:id="treeScrollPane" fitToHeight="true" fitToWidth="true" BorderPane.alignment="CENTER">
-         <content>
-            <TreeView fx:id="treeView" prefHeight="442.0" prefWidth="179.0" />
-         </content>
-      </ScrollPane>
-   </left>
    <center>
-      <HTMLEditor fx:id="htmlEditor" htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" onKeyReleased="#handleClickEventInWebView" onMouseClicked="#handleClickEventInWebView" styleClass="HTMLEditor" stylesheets="@../styles/lightmode.css" BorderPane.alignment="CENTER" />
+      <SplitPane fx:id="splitPane" orientation="HORIZONTAL" BorderPane.alignment="CENTER">
+         <items>
+            <ScrollPane fx:id="treeScrollPane" fitToHeight="true" fitToWidth="true">
+               <content>
+                  <TreeView fx:id="treeView" prefHeight="442.0" prefWidth="179.0" />
+               </content>
+            </ScrollPane>
+            <HTMLEditor fx:id="htmlEditor" htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" onKeyReleased="#handleClickEventInWebView" onMouseClicked="#handleClickEventInWebView" styleClass="HTMLEditor" stylesheets="@../styles/lightmode.css" />
+         </items>
+      </SplitPane>
    </center>
    <bottom>
       <HBox alignment="CENTER_LEFT" prefHeight="22.0" prefWidth="236.0" spacing="50.0" styleClass="bottom-bar" stylesheets="@../styles/lightmode.css" BorderPane.alignment="CENTER">

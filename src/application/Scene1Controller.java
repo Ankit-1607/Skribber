@@ -23,6 +23,12 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.scene.layout.BorderPane;
 
+// for zoom handling
+import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.web.WebView;
+
 public class Scene1Controller {
   // Injecting FXML elements to the controller class
   @FXML
@@ -90,6 +96,57 @@ public class Scene1Controller {
   }
 
   //       ----------------------------- EVENT HANDLERS ----------------------------- 
+  public void initializeZoomHandlers(Scene scene) {
+    htmlEditor.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+        if (event.isControlDown()) {
+            WebView webView = (WebView) htmlEditor.lookup("WebView");
+            if (webView != null) {
+                if (event.getCode() == KeyCode.PLUS || event.getCode() == KeyCode.EQUALS) {
+                    webView.setZoom(webView.getZoom() * 1.1);
+                    event.consume();
+                } else if (event.getCode() == KeyCode.MINUS) {
+                    webView.setZoom(webView.getZoom() / 1.1);
+                    event.consume();
+                }
+            }
+        }
+    });
+  }
+
+  /*
+  public void initializeZoomHandlers(Scene scene) {
+    Scale scale = new Scale(1, 1, 0, 0);
+    borderPane.getTransforms().add(scale);
+
+    scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+      if(event.isControlDown()) {
+        if(event.getCode() == KeyCode.PLUS || event.getCode() == KeyCode.EQUALS) {
+          zoomIn()
+          event.consume();
+        } else if(event.getCode() == KeyCode.MINUS) {
+          scale.setX(scale.getX() / 1.1);
+          scale.setY(scale.getY() / 1.1);
+          event.consume();
+        }
+      }
+    });
+
+    htmlEditor.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+      if (event.isControlDown()) {
+        WebView webView = (WebView) htmlEditor.lookup("WebView"); // returns a Node
+        if (webView != null) {
+          if (event.getCode() == KeyCode.PLUS || event.getCode() == KeyCode.EQUALS) {
+              webView.setZoom(webView.getZoom() * 1.1);
+              event.consume();
+          } else if (event.getCode() == KeyCode.MINUS) {
+              webView.setZoom(webView.getZoom() / 1.1);
+              event.consume();
+          }
+        }
+      }
+    });
+  }
+*/
 
   // Event handlers for the various actions that the user can perform in the application - connected to the FXML file
 
@@ -142,7 +199,12 @@ public class Scene1Controller {
   public void createNewFile() {
     TreeItem<String> selectedItem = treeView.getSelectionModel().getSelectedItem();
     if (selectedItem != null) {
-      File selectedDirectory = new File(storageDirectory, getFilePath(selectedItem));
+      File selectedDirectory;
+      if(selectedItem.getParent() == null) {
+        selectedDirectory = storageDirectory;
+      } else {
+        selectedDirectory = new File(storageDirectory, getFilePath(selectedItem));
+      }
       if (selectedDirectory.isDirectory()) {
         boolean validName = false;
         while (!validName) { // run this till user enters a valid name
@@ -349,7 +411,12 @@ public class Scene1Controller {
   public void deleteSelectedDirectory() {
     TreeItem<String> selectedItem = treeView.getSelectionModel().getSelectedItem();
     if (selectedItem != null) {
-      File selectedDirectory = new File(storageDirectory, getFilePath(selectedItem));
+      File selectedDirectory;
+      if(selectedItem.getParent() == null) {
+        selectedDirectory = storageDirectory;
+      } else {
+        selectedDirectory = new File(storageDirectory, getFilePath(selectedItem));
+      }
       if (selectedDirectory.isDirectory()) {
         // confirm deletion with the user
         Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -692,6 +759,5 @@ public class Scene1Controller {
     htmlEditor.setVisible(false);
     currentFile = null;
   }
-
 
 }
