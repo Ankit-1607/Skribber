@@ -1,11 +1,14 @@
 package application;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.util.Optional;
 import java.util.prefs.Preferences;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -14,6 +17,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -52,11 +56,26 @@ public class Scene1Controller {
   @FXML
   private CheckMenuItem autosaveMenuItem; // Menu item to toggle autosave feature
 
+  @FXML
+  private CheckMenuItem detectHandGestures; // Menu item to toggle detect hand gestures
+
+  @FXML
+  private Label predictionLabel; // shows model's output
+
+  @FXML
+  private SplitPane splitPane; // SpllitPane to manage treeview and HTMLEditor
+  
+
+
+  private Process pythonProcess;
+  private Thread pythonReaderThread;
+
   private File storageDirectory; // User choice directory
   private File currentFile; // Reference to currently opened file
 
   private static final String PREF_KEY_DIRECTORY = "storageDirectoryPath"; // Key for accessing user's local storage for previously chosen directory
 
+  private double[] dividerPositions; // To store previous dimensions of treeview
   
   public void initialize() { // Runs when application is loaded
     storageDirectory = getStorageDirectory();
@@ -93,6 +112,163 @@ public class Scene1Controller {
             disableAutosave();
         }
     });
+  
+    // add a listener to the CheckMenuItem to start/stop hand detection process
+    detectHandGestures.selectedProperty().addListener((_, _, newValue) -> {
+      if(newValue) {
+        startPythonProcess();
+      } else {
+        stopPythonProcess();
+        predictionLabel.setText("Prediction: None");
+      }
+    });
+
+  }
+
+  private void startPythonProcess() {
+    if(pythonProcess != null && pythonProcess.isAlive()) {
+      return;
+    }
+
+    try {
+      ProcessBuilder pb = new ProcessBuilder("C:\\Users\\21aks\\AppData\\Local\\Programs\\Python\\Python38\\python.exe", "./src/application/Find_Gesture/test_classifier.py");
+      pb.redirectErrorStream(true);
+      pythonProcess = pb.start();
+
+      pythonReaderThread = new Thread(() -> {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(pythonProcess.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println("Python output: " + line);
+                    String finalLine = line;
+                    Platform.runLater(() -> {
+                      predictionLabel.setText("Prediction: " + finalLine);
+                      handleGesture(finalLine);
+                    });
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+      });
+      pythonReaderThread.setDaemon(true);
+      pythonReaderThread.start();
+    } catch(IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void stopPythonProcess() {
+    if(pythonProcess != null) {
+      pythonProcess.destroy();
+      pythonProcess = null;
+    }
+
+    if(pythonReaderThread != null && pythonReaderThread.isAlive()) {
+      pythonReaderThread.interrupt();
+      pythonReaderThread = null;
+    }
+  }
+
+  private void handleGesture(String gesture) {
+    if (gesture.equalsIgnoreCase("zoom in")) {
+      zoomIn();
+    } else if (gesture.equalsIgnoreCase("zoom out")) {
+      zoomOut();
+    } else if (gesture.equalsIgnoreCase("scroll up")) {
+      scrollUp();
+    } else if (gesture.equalsIgnoreCase("scroll down")) {
+      scrollDown();
+    } else if (gesture.equalsIgnoreCase("next note")) {
+      nextNote();
+    } else if (gesture.equalsIgnoreCase("prev note")) {
+      prevNote();
+    }
+  }
+
+  private void zoomIn() {
+    WebView webView = (WebView) htmlEditor.lookup("WebView");
+    if(webView != null) {
+      webView.setZoom(webView.getZoom() * 1.1);
+    }
+  }
+
+  private void zoomOut() {
+    WebView webView = (WebView) htmlEditor.lookup("WebView");
+    if(webView != null) {
+      webView.setZoom(webView.getZoom() / 1.1);
+    }
+  }
+
+  private void scrollUp() {
+    WebView webView = (WebView) htmlEditor.lookup("WebView");
+    if (webView != null) {
+      webView.getEngine().executeScript("window.scrollBy(0, -100)");
+    }
+  }
+
+  private void scrollDown() {
+    WebView webView = (WebView) htmlEditor.lookup("WebView");
+    if (webView != null) {
+      webView.getEngine().executeScript("window.scrollBy(0, 100)");
+    }
+  }
+
+  private void nextNote() {
+    TreeItem<String> selectedItem = treeView.getSelectionModel().getSelectedItem();
+    if (selectedItem != null) {
+      TreeItem<String> nextItem = getNextItem(selectedItem);
+      if (nextItem != null) {
+        treeView.getSelectionModel().select(nextItem);
+        File selectedFile = new File(storageDirectory, getFilePath(nextItem));
+        if (selectedFile.isFile()) {
+          loadFileContent(selectedFile);
+        }
+      }
+    }
+  }
+
+  private void prevNote() {
+    TreeItem<String> selectedItem = treeView.getSelectionModel().getSelectedItem();
+    if (selectedItem != null) {
+      TreeItem<String> prevItem = getPrevItem(selectedItem);
+      if (prevItem != null) {
+        treeView.getSelectionModel().select(prevItem);
+        File selectedFile = new File(storageDirectory, getFilePath(prevItem));
+        if (selectedFile.isFile()) {
+          loadFileContent(selectedFile);
+        }
+      }
+    }
+  }
+
+  private TreeItem<String> getNextItem(TreeItem<String> item) {
+    TreeItem<String> parent = item.getParent();
+    if (parent != null) {
+      int index = parent.getChildren().indexOf(item);
+      for (int i = index + 1; i < parent.getChildren().size(); i++) {
+        TreeItem<String> nextItem = parent.getChildren().get(i);
+        File nextFile = new File(storageDirectory, getFilePath(nextItem));
+        if (nextFile.isFile()) {
+          return nextItem;
+        }
+      }
+    }
+    return null;
+  }
+
+  private TreeItem<String> getPrevItem(TreeItem<String> item) {
+    TreeItem<String> parent = item.getParent();
+    if (parent != null) {
+      int index = parent.getChildren().indexOf(item);
+      for (int i = index - 1; i >= 0; i--) {
+        TreeItem<String> prevItem = parent.getChildren().get(i);
+        File prevFile = new File(storageDirectory, getFilePath(prevItem));
+        if (prevFile.isFile()) {
+          return prevItem;
+        }
+      }
+    }
+    return null;
   }
 
   //       ----------------------------- EVENT HANDLERS ----------------------------- 
@@ -113,40 +289,6 @@ public class Scene1Controller {
     });
   }
 
-  /*
-  public void initializeZoomHandlers(Scene scene) {
-    Scale scale = new Scale(1, 1, 0, 0);
-    borderPane.getTransforms().add(scale);
-
-    scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-      if(event.isControlDown()) {
-        if(event.getCode() == KeyCode.PLUS || event.getCode() == KeyCode.EQUALS) {
-          zoomIn()
-          event.consume();
-        } else if(event.getCode() == KeyCode.MINUS) {
-          scale.setX(scale.getX() / 1.1);
-          scale.setY(scale.getY() / 1.1);
-          event.consume();
-        }
-      }
-    });
-
-    htmlEditor.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-      if (event.isControlDown()) {
-        WebView webView = (WebView) htmlEditor.lookup("WebView"); // returns a Node
-        if (webView != null) {
-          if (event.getCode() == KeyCode.PLUS || event.getCode() == KeyCode.EQUALS) {
-              webView.setZoom(webView.getZoom() * 1.1);
-              event.consume();
-          } else if (event.getCode() == KeyCode.MINUS) {
-              webView.setZoom(webView.getZoom() / 1.1);
-              event.consume();
-          }
-        }
-      }
-    });
-  }
-*/
 
   // Event handlers for the various actions that the user can perform in the application - connected to the FXML file
 
@@ -290,13 +432,17 @@ public class Scene1Controller {
   // Handles toggle button to show/hide the TreeView.
   public void handleToggleButtonClick() {
     toggleTreeViewButton.setOnAction(_ -> {
-      if (treeView.isVisible()) {
-        treeView.setVisible(false); // this will not be shown either way since we are removing scroll pane from the borderpane
-        borderPane.setLeft(null);  // remove the ScrollPane - treeView container
+      if (splitPane.getItems().contains(treeScrollPane)) {
+        // Store the current divider positions before hiding the TreeView
+        dividerPositions = splitPane.getDividerPositions();
+        splitPane.getItems().remove(treeScrollPane);
         toggleTreeViewButton.setText("Show Notes List");
       } else {
-        borderPane.setLeft(treeScrollPane); // adds the ScrollPane back
-        treeView.setVisible(true); // treeview is made visible again
+        splitPane.getItems().add(0, treeScrollPane);
+        // Restore the stored divider positions when showing the TreeView
+        if (dividerPositions != null) {
+          splitPane.setDividerPositions(dividerPositions);
+        }
         toggleTreeViewButton.setText("Hide Notes List");
       }
     });
@@ -747,7 +893,6 @@ public class Scene1Controller {
           wordCountLabel.setText("0 Word");
         else
         wordCountLabel.setText("1 Word");
-        System.out.println(wordCount);
     } else {
         System.err.println("Reload");
     }

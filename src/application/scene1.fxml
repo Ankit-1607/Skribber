@@ -40,11 +40,16 @@
                   <MenuItem mnemonicParsing="false" onAction="#deleteSelectedDirectory" text="Delete Vault" />
               </items>
             </Menu>
+            <Menu mnemonicParsing="false" text="Hands Free">
+               <items>
+                  <CheckMenuItem fx:id="detectHandGestures" mnemonicParsing="false" text="Detect Hand Gestures" />
+               </items>
+            </Menu>
         </menus>
       </MenuBar>
    </top>
    <center>
-      <SplitPane fx:id="splitPane" orientation="HORIZONTAL" BorderPane.alignment="CENTER">
+      <SplitPane fx:id="splitPane" dividerPositions="0.49999999999999994" orientation="HORIZONTAL" BorderPane.alignment="CENTER">
          <items>
             <ScrollPane fx:id="treeScrollPane" fitToHeight="true" fitToWidth="true">
                <content>
@@ -60,6 +65,7 @@
          <children>
             <Button fx:id="toggleTreeViewButton" mnemonicParsing="false" onMouseClicked="#handleToggleButtonClick" prefWidth="140.0" styleClass="toggle-button" stylesheets="@../styles/lightmode.css" text="Hide Notes List" />
             <Label fx:id="wordCountLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="19.0" prefWidth="234.0" styleClass="word-count" stylesheets="@../styles/lightmode.css" HBox.hgrow="ALWAYS" />
+            <Label fx:id="predictionLabel" prefHeight="42.0" prefWidth="234.0" />
          </children>
       </HBox>
    </bottom>
